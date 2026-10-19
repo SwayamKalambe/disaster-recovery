@@ -1,0 +1,31 @@
+services:
+  postgres:
+    build:
+      context: ./postgres
+    container_name: dr-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: swayum14
+      POSTGRES_DB: ${POSTGRES_DB}
+
+    ports:
+      - "5433:5432"
+    volumes:
+      - dr_postgres_data:/var/lib/postgresql/data
+      - dr_pgbackrest_repo:/var/lib/pgbackrest
+      - ./pgbackrest/pgbackrest.conf:/etc/pgbackrest/pgbackrest.conf:ro
+    command:
+      - postgres
+      - -c
+      - archive_mode=on
+      - -c
+      - "archive_command=pgbackrest --stanza=main archive-push %p"
+      - -c
+      - "archive_timeout=60"
+
+volumes:
+  dr_postgres_data:
+  dr_pgbackrest_repo:
+
+
+  
